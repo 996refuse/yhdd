@@ -8,46 +8,44 @@
 .section .bss
 .lcomm buffer, BUFFER_SIZE
 
-.sectin .text
+.section .text
 .globl _start
 _start:
     movl %esp, %ebp
-    subl 4, %esp
+    subl $4, %esp
     
 open_files:
-    movl $SYS_OPEN, %eax //call num
-    movl 8(%ebp), %ebx //file name
-    movl 0, %ecx //ready only
+    movl $SYS_OPEN, %eax #call num
+    movl 8(%ebp), %ebx   #file name
+    movl $0, %ecx         #ready only
     movl $0666, %edx
-    int 0x80
+    int  $0x80
 
     movl %eax, -4(%ebp)
 
-read_loop:
+read:
     movl $SYS_READ, %eax
     movl -4(%ebp), %ebx
 
     movl $buffer, %ecx
     movl $BUFFER_SIZE, %edx
-    int 0x80
+    int  $0x80
     
-    cmpl 0, %eax
-    jle over_flow:
+    cmpl $0, %eax
+    jle over_flow
     
-    pushl $BUFFER_DATA
+    pushl $buffer
     pushl %eax
     call sum
     addl $8, %esp
     movl %eax, %ebx
-    movl %1, %eax
-    int 0x80
+    movl $1, %eax
+    int  $0x80
     
-
 over_flow:
     movl $1, %eax
     movl $-1, %ebx
-    int 0x80
-
+    int  $0x80
 
 sum:
     pushl %ebp
@@ -60,7 +58,11 @@ loop:
     cmpl %ebx, -8(%ebp)
     je sum_r
 
-    addl (%ecp, %ebx, 4), %eax
+
+    movl $0, %edx
+    movb (%ecx, %ebx, 4), %dl
+    addl %edx, %eax
+
     addl $1, %ebx
     jmp loop
 
