@@ -35,6 +35,7 @@ read:
     jle over_flow
     
     pushl $buffer
+    decl  %eax
     pushl %eax
     call sum
     addl $8, %esp
@@ -52,16 +53,17 @@ sum:
     movl %esp, %ebp
     movl $0, %eax
     movl $0, %ebx
-    movl -12(%ebp), %ecx
+    movl 12(%ebp), %ecx
 
 loop:
-    cmpl %ebx, -8(%ebp)
+    cmpl %ebx, 8(%ebp)
     je sum_r
 
 
     movl $0, %edx
-    movb (%ecx, %ebx, 4), %dl
+    movb (%ecx, %ebx, 1), %dl
     addl %edx, %eax
+    subl $0x30, %eax
 
     addl $1, %ebx
     jmp loop
