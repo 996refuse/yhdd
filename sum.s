@@ -1,7 +1,6 @@
 .equ SYS_OPEN, 5
 .equ SYS_READ, 3
 .equ SYS_CLOSE, 6
-.equ SYS_EXIT, 1
 
 .equ BUFFER_SIZE, 500
 
@@ -12,12 +11,12 @@
 .globl _start
 _start:
     movl %esp, %ebp
-    subl $4, %esp
+    subl $8, %esp
     
 open_files:
     movl $SYS_OPEN, %eax #call num
     movl 8(%ebp), %ebx   #file name
-    movl $0, %ecx         #ready only
+    movl $0, %ecx        #ready only
     movl $0666, %edx
     int  $0x80
 
@@ -38,8 +37,15 @@ read:
     decl  %eax
     pushl %eax
     call sum
-    addl $8, %esp
-    movl %eax, %ebx
+    addl $8, %esp # pop twice
+
+    movl %eax, -8(%ebp)
+
+    movl $SYS_CLOSE, %eax
+    movl -4(%ebp), %ebx
+    int $0x80
+
+    movl -8(%ebp), %ebx
     movl $1, %eax
     int  $0x80
     
